@@ -1,9 +1,0 @@
-	
-	
-	<update id="UserInfo.update">
-    <![CDATA[
-	update user_info set username = :username where password = :password and age=:age and sex=:sex
-    ]]>
-	</update>
-	
-    
