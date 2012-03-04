@@ -1,0 +1,807 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+    
+
+<mapper namespace="UserInfo">
+
+	<sql id="columns">
+		<![CDATA[ USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE  ]]>
+	</sql>
+		
+	<sql id="forSetOperationSql">
+		inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = ? 
+	    	and r.role_name = ?
+	    	and b.content like ?
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	</sql>
+		
+	<sql id="user_info.where">
+		and username > #username#
+	    	and password = #password#
+	</sql>
+		
+	<sql id="roleSecond.where">
+		and username = #secondUsername#
+	</sql>
+		
+	<sql id="duplication.where">
+		and username > #username#
+	    	and password = #password#   
+	    	and username = #secondUsername#    
+	    	and username = #noduplicationUsername#
+	</sql>
+		
+
+	
+	
+    
+	<insert id="UserInfo.insert">
+		INSERT INTO user_info (user_id,username,password) values (#user_id#,#username#,#password#)
+			<selectKey keyProperty="user_id" resultClass="java.lang.Long" type="post">
+            select last_insert_id() from any
+    		</selectKey>
+	</insert>
+	
+	
+    
+	<insert id="UserInfo.insertWithFunction">
+		INSERT INTO user_info (age,username,password,birth_date,sex,user_id) values ('23',#username#,#password#,curdate(),'12','123111')
+			<selectKey keyProperty="user_id" resultClass="java.lang.Long" type="post">
+            select last_insert_id() from any
+    		</selectKey>
+	</insert>
+	
+	<update id="UserInfo.update">
+		UPDATE user_info SET username = #username#,password = #password#
+			WHERE username = #username#
+	</update>
+	
+    
+		
+	<select id="UserInfo.queryByUserId" resultMap="RM.UserInfo" >
+    	select USER_ID,USERNAME,PASSWORD,BIRTH_DATE,SEX,AGE 	from user_info
+			where user_id = #userId#
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.CountUsernameResult" type="com.company.project.query.CountUsernameResult">
+		<result property="usernameCnt" column="USERNAME_CNT" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumAge" column="SUM_AGE" javaType="java.lang.Long" jdbcType="BIGINT" />
+	</resultMap>
+		
+	<select id="UserInfo.countUsername" resultMap="RM.CountUsernameResult" >
+    	<![CDATA[
+			select count(username) username_cnt,sum(age) sum_age
+			from user_info
+			where user_id = #userId# and age = #age.cent# and sex = #sex.cent# and username > #maxUsername# and username &lt; #minUsername#
+		]]>
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.CountDynimicUsernameResult" type="com.company.project.query.CountDynimicUsernameResult">
+		<result property="usernameCnt" column="USERNAME_CNT" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumAge" column="SUM_AGE" javaType="java.lang.Long" jdbcType="BIGINT" />
+	</resultMap>
+		
+	<select id="UserInfo.countDynimicUsername" resultMap="RM.CountDynimicUsernameResult" >
+    	<![CDATA[
+			select count(username) username_cnt,sum(age) sum_age
+			from user_info
+			where user_id = #userId# and age = #age.cent# and sex = #sex.cent# and username > #maxUsername# and username &lt; #minUsername#
+		]]>
+	</select>	
+
+	    
+	
+	
+    
+	
+	
+    
+	<insert id="UserInfo.insertWithSelectKey">
+		<![CDATA[
+	        INSERT INTO USER_INFO (
+	        	USER_ID ,
+	        	USERNAME ,
+	        	PASSWORD ,
+	        	BIRTH_DATE ,
+	        	SEX ,
+	        	AGE 
+	        ) VALUES (
+	        	#userId# ,
+	        	#username# ,
+	        	#password# ,
+	        	#birthDate# ,
+	        	#sex.cent# ,
+	        	#age.cent# 
+	        )
+	    ]]>
+	</insert>
+	
+	<update id="UserInfo.update">
+		<![CDATA[
+        UPDATE USER_INFO SET
+	        USERNAME = #username# ,
+	        PASSWORD = #password# ,
+	        BIRTH_DATE = #birthDate# ,
+	        SEX = #sex.cent# ,
+	        AGE = #age.cent# 
+        WHERE 
+	        USER_ID = #userId# 
+    ]]>
+	</update>
+	
+    
+	
+	
+	<delete id="UserInfo.delete">
+		<![CDATA[
+        DELETE FROM USER_INFO WHERE
+        USER_ID = #userId# 
+    ]]>
+    </delete>
+    
+		
+	<select id="UserInfo.getById" resultMap="RM.UserInfo" >
+    	SELECT USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE 
+	    <![CDATA[
+	        FROM USER_INFO 
+	        WHERE 
+		        USER_ID = #userId# 
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.findPage.count" resultType="Long" >
+    	<![CDATA[
+        SELECT count(*) FROM USER_INFO
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="userId">
+		             USER_ID = #userId#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="username">
+		             USERNAME = #username#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="password">
+		             PASSWORD = #password#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="birthDateBegin">
+		             BIRTH_DATE &gt;= #birthDateBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="birthDateEnd">
+		             BIRTH_DATE &lt;= #birthDateEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="sex">
+		             SEX = #sex.cent#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="age">
+		             AGE = #age.cent#
+		       </isNotEmpty>
+	    </dynamic>
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.findPage" resultMap="RM.UserInfo" >
+    	<![CDATA[
+    	SELECT USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE FROM USER_INFO 
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="userId">
+		             USER_ID = #userId#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="username">
+		             USERNAME = #username#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="password">
+		             PASSWORD = #password#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="birthDateBegin">
+		             BIRTH_DATE >= #birthDateBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="birthDateEnd">
+		             BIRTH_DATE &lt;= #birthDateEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="sex">
+		             SEX = #sex.cent#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="age">
+		             AGE = #age.cent#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="includeAges">
+		     		age in	
+		    		<iterate open="(" close=")" conjunction="," property="includeAges">
+	    				#includeAges[]#
+	    			</iterate>
+			   </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="orIncludeAges">
+		    		<iterate open="(" close=")" conjunction="OR" property="orIncludeAges">
+	    				age = #orIncludeAges[]#
+	    			</iterate>
+			   </isNotEmpty>			       
+	    </dynamic>
+	    <isNotEmpty prepend="ORDER BY" property="orderBy">
+		      #orderBy#
+		</isNotEmpty>
+		]]>
+	</select>	
+
+	<select id="UserInfo.findPage.count" resultType="long" >
+    	<![CDATA[
+    	select count(*)  FROM USER_INFO 
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="userId">
+		             USER_ID = #userId#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="username">
+		             USERNAME = #username#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="password">
+		             PASSWORD = #password#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="birthDateBegin">
+		             BIRTH_DATE >= #birthDateBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="birthDateEnd">
+		             BIRTH_DATE &lt;= #birthDateEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="sex">
+		             SEX = #sex.cent#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="age">
+		             AGE = #age.cent#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="includeAges">
+		     		age in	
+		    		<iterate open="(" close=")" conjunction="," property="includeAges">
+	    				#includeAges[]#
+	    			</iterate>
+			   </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="orIncludeAges">
+		    		<iterate open="(" close=")" conjunction="OR" property="orIncludeAges">
+	    				age = #orIncludeAges[]#
+	    			</iterate>
+			   </isNotEmpty>			       
+	    </dynamic>
+	    
+		]]>
+	</select>
+	    
+	
+	
+    
+		
+	<select id="UserInfo.getByUsername" resultMap="RM.UserInfo" >
+    	<![CDATA[
+	    SELECT USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE 
+	        FROM USER_INFO WHERE USERNAME = #username#
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.getByAge" resultMap="RM.UserInfo" >
+    	<![CDATA[
+	    SELECT USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE 
+	        FROM USER_INFO WHERE AGE = #age.cent#  
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.subSelectNotOrderBy" resultMap="RM.UserInfo" >
+    	<![CDATA[
+	    SELECT USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE 
+	        FROM USER_INFO WHERE 
+	        AGE in (select age from User_info where username = #username#)
+	        AND sex in (select age from User_info where sex = #sex.cent# and password = #password# and BIRTH_DATE = #birthDate#)
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.fromSubQuery" resultMap="RM.UserInfo" >
+    	<![CDATA[
+	    SELECT USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE 
+	        FROM (select * from user_info)
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.testSqlMap" resultMap="RM.UserInfo" >
+    	
+	    <![CDATA[
+	    select * from user_info where user_id = 123 /* sqlmap value */
+	    ]]>	    	
+	    
+	</select>	
+
+	<select id="UserInfo.testSqlMap.count" resultType="long" >
+    	<![CDATA[
+	    select count(*)  from user_info where user_id = 123 /* sqlmap value */
+	    ]]>
+	</select>
+	    
+	
+	
+    
+		
+	<select id="UserInfo.testSqlMapWithParamsReplace" resultMap="RM.UserInfo" >
+    	
+	    <![CDATA[
+	    select * from user_info where user_id = #userId# and password = #password# or sex = 'sexinsex'
+	    ]]>	    	
+	    
+	</select>	
+
+	<select id="UserInfo.testSqlMapWithParamsReplace.count" resultType="long" >
+    	<![CDATA[
+	    select count(*)  from user_info where user_id = #userId# and password = #password# or sex = 'sexinsex'
+	    ]]>
+	</select>
+	    
+	
+	
+    
+		
+	<select id="UserInfo.testNotParameter" resultMap="RM.UserInfo" >
+    	<![CDATA[
+	    SELECT <include refid="columns"/> FROM USER_INFO 
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.testIncludeByRefid" resultMap="RM.UserInfo" >
+    	<![CDATA[
+	    SELECT <include refid="columns"/> 
+	        FROM USER_INFO WHERE AGE = #age.cent#  
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.TestSelectColumnsWithQueryResult" type="com.company.project.query.TestSelectColumnsWithQueryResult">
+		<result property="userId" column="USER_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="username" column="USERNAME" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result property="pwdFromSelectQuery" column="PWD_FROM_SELECT_QUERY" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+		
+	<select id="UserInfo.testSelectColumnsWithQuery" resultMap="RM.TestSelectColumnsWithQueryResult" >
+    	select USER_ID,USERNAME,(select password from user_info where password = #pwd_in_select_query# ) pwd_from_select_query
+			from user_info
+			where user_id = #userId#
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.TestRoleJoinRolePermissionJoinBlogResult" type="com.company.project.query.TestRoleJoinRolePermissionJoinBlogResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="roleName" column="ROLE_NAME" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result property="resourceId" column="RESOURCE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="userId" column="USER_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="roleDesc" column="ROLE_DESC" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result property="created" column="CREATED" javaType="java.sql.Date" jdbcType="DATE" />
+		<result property="modified" column="MODIFIED" javaType="java.sql.Date" jdbcType="DATE" />
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="permissoinId" column="PERMISSOIN_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="blogId" column="BLOG_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="userId" column="USER_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="username" column="USERNAME" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result property="created" column="CREATED" javaType="java.sql.Date" jdbcType="DATE" />
+		<result property="modified" column="MODIFIED" javaType="java.sql.Date" jdbcType="DATE" />
+		<result property="title" column="TITLE" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result property="content" column="CONTENT" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result property="contentLength" column="CONTENT_LENGTH" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result property="status" column="STATUS" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+		
+	<select id="UserInfo.testRoleJoinRolePermissionJoinBlog" resultMap="RM.TestRoleJoinRolePermissionJoinBlogResult" >
+    	select ROLE_ID,ROLE_NAME,RESOURCE_ID,USER_ID,ROLE_DESC,CREATED,MODIFIED,ROLE_ID,PERMISSOIN_ID,BLOG_ID,USER_ID,USERNAME,CREATED,MODIFIED,TITLE,CONTENT,CONTENT_LENGTH,STATUS  from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.TestRoleJoinRolePermissionJoinBlogWithCustomParamResult" type="com.company.project.query.TestRoleJoinRolePermissionJoinBlogWithCustomParamResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testRoleJoinRolePermissionJoinBlogWithCustomParam" resultMap="RM.TestRoleJoinRolePermissionJoinBlogWithCustomParamResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.TestGroupByPagingResult" type="com.company.project.query.TestGroupByPagingResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testGroupByPaging" resultMap="RM.TestGroupByPagingResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	</select>	
+
+	<select id="UserInfo.testGroupByPaging.count" resultType="long" >
+    	select count(*)  from (
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	      ) forGroupByCountTable
+	</select>
+	    
+	
+	
+    
+	<resultMap id="RM.TestSetOperationsResult" type="com.company.project.query.TestSetOperationsResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testSetOperations" resultMap="RM.TestSetOperationsResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+		<include refid="forSetOperationSql"/>
+	    UNION 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    UNION ALL
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+		MINUS 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    EXCEPT  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    INTERSECT   
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    /* h2不支持集合操作	    *//*
+	    EXCEPT ALL  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    INTERSECT ALL  
+	    select role_id,sum(user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    */
+	</select>	
+
+	<select id="UserInfo.testSetOperations.count" resultType="long" >
+    	select count(*)  from role r 
+		<include refid="forSetOperationSql"/>
+	    UNION 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    UNION ALL
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+		MINUS 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    EXCEPT  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    INTERSECT   
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    /* h2不支持集合操作	    *//*
+	    EXCEPT ALL  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    INTERSECT ALL  
+	    select role_id,sum(user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    */
+	</select>
+	    
+	
+	
+    
+	<resultMap id="RM.TestMybatisOrderByPagingWithIfResult" type="com.company.project.query.TestMybatisOrderByPagingWithIfResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testMybatisOrderByPagingWithIf" resultMap="RM.TestMybatisOrderByPagingWithIfResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	   	    <if test="orderBy != null">
+	   	    	order by r.role_id
+	   	    </if>
+		    <if test="orderBy == null">
+		    	order by sum_user_id
+			</if>
+			<choose>
+				<when test="orderby == '123'">
+					order by r.role_id
+				</when>
+				<when test="orderby == '123'">
+					order by r.role_id
+				</when>
+				<otherwise>
+					order by r.role_id
+				</otherwise>
+			</choose>
+	</select>	
+
+	<select id="UserInfo.testMybatisOrderByPagingWithIf.count" resultType="long" >
+    	select count(*)  from (
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	   	    
+		    
+			
+	      ) forGroupByCountTable
+	</select>
+	    
+	
+	
+    
+	<resultMap id="RM.TestOpenCloseResult" type="com.company.project.query.TestOpenCloseResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testOpenClose" resultMap="RM.TestOpenCloseResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	   	    and r.role_name in <isNotEmpty close=")" open="("><iterate conjunction="," property="roleNames">#roleNames[]#</iterate></isNotEmpty>
+	    	group by r.role_id
+	</select>	
+
+	<select id="UserInfo.testOpenClose.count" resultType="long" >
+    	select count(*)  from (
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	   	    and r.role_name in <isNotEmpty close=")" open="("><iterate conjunction="," property="roleNames">#roleNames[]#</iterate></isNotEmpty>
+	    	group by r.role_id
+	      ) forGroupByCountTable
+	</select>
+	    
+	
+	
+    
+		
+	<select id="UserInfo.testXmlEscape" resultMap="RM.Role" >
+    	select ROLE_ID,ROLE_NAME,RESOURCE_ID,USER_ID,ROLE_DESC,CREATED,MODIFIED  from role r 
+	    where 
+	    	r.role_id &lt; ? 
+	    	and r.role_name > #roleName#
+	</select>	
+
+	<select id="UserInfo.testXmlEscape.count" resultType="long" >
+    	select count(*)  from role r 
+	    where 
+	    	r.role_id &lt; ? 
+	    	and r.role_name > #roleName#
+	</select>
+	    
+	
+	
+    
+		
+	<select id="UserInfo.testIncludeWhere" resultMap="RM.UserInfo" >
+    	select USER_ID,USERNAME,PASSWORD,BIRTH_DATE,SEX,AGE  from user_info r 
+	    where 1=1
+			<include refid="user_info.where"/>
+			<include refid="user_info.where"/>
+			<include refid="roleSecond.where"/>
+			<include refid="duplication.where"/>
+	</select>	
+
+	<select id="UserInfo.testIncludeWhere.count" resultType="long" >
+    	select count(*)  from user_info r 
+	    where 1=1
+			<include refid="user_info.where"/>
+			<include refid="user_info.where"/>
+			<include refid="roleSecond.where"/>
+			<include refid="duplication.where"/>
+	</select>
+	    
+	
+	
+    
+		
+	<select id="UserInfo.testIncludeWhereWithNoPaging" resultMap="RM.UserInfo" >
+    	select USER_ID,USERNAME,PASSWORD,BIRTH_DATE,SEX,AGE  from user_info r 
+	    where 1=1
+			<include refid="user_info.where"/>
+			<include refid="user_info.where"/>
+			<include refid="roleSecond.where"/>
+			<include refid="duplication.where"/>
+	</select>	
+
+	    
+	
+	
+    
+		
+	<select id="UserInfo.countByUserId" resultType="Long" >
+    	select count(*)
+			from user_info
+			where user_id = #userId#
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.TestMybatisForEachResult" type="com.company.project.query.TestMybatisForEachResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testMybatisForEach" resultMap="RM.TestMybatisForEachResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    	<where>
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	and r.role_name in <foreach close=")" collection="array" item="item" open="(">#{item}</foreach>
+	    	and r.role_name in <foreach close=")" collection="list" index="index" open="(">#{list[${index}]}</foreach>
+			<if test="orderBy != null">
+	   	    	and b.content = #{contentIf1}
+	   	    </if>
+		    <if test="orderBy == null">
+		    	and b.content = #{contentIf2}
+			</if>
+			<choose>
+				<when test="orderby == '123'">
+					and b.content = #{contentIf3}
+				</when>
+				<when test="orderby == '123'">
+					and b.content = #{contentIf4}
+				</when>
+				<otherwise>
+					and b.content = #{contentIf5}
+				</otherwise>
+			</choose>	    	
+	    	</where> 
+	    	group by r.role_id
+	</select>	
+
+	<select id="UserInfo.testMybatisForEach.count" resultType="long" >
+    	select count(*)  from (
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    	<where>
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	and r.role_name in <foreach close=")" collection="array" item="item" open="(">#{item}</foreach>
+	    	and r.role_name in <foreach close=")" collection="list" index="index" open="(">#{list[${index}]}</foreach>
+			<if test="orderBy != null">
+	   	    	and b.content = #{contentIf1}
+	   	    </if>
+		    <if test="orderBy == null">
+		    	and b.content = #{contentIf2}
+			</if>
+			<choose>
+				<when test="orderby == '123'">
+					and b.content = #{contentIf3}
+				</when>
+				<when test="orderby == '123'">
+					and b.content = #{contentIf4}
+				</when>
+				<otherwise>
+					and b.content = #{contentIf5}
+				</otherwise>
+			</choose>	    	
+	    	</where> 
+	    	group by r.role_id
+	      ) forGroupByCountTable
+	</select>
+	    
+	
+	
+    
+	
+	
+    
+	<insert id="UserInfo.insertWithNoSelectKey">
+		INSERT INTO user_info (user_id,username,password) values (#user_id#,#username#,#password#)
+	</insert>
+
+</mapper>
+

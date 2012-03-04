@@ -1,0 +1,10 @@
+	
+	<select id="UserInfoBlog.testSelectCountAndMultiPolicyOne" resultMap="Long" >
+    <![CDATA[
+	select count(username) cnt from user_info where username = :username and password =:password and age = :age and sex = :sex and birth_date > :birth_date and birth_date < :birth_date2
+    ]]>
+	</select>	
+    
+	
+	
+    

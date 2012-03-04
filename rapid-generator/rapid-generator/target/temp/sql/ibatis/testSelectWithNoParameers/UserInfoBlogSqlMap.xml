@@ -1,0 +1,13 @@
+	
+	
+	
+	<select id="UserInfoBlog.testSelectWithNoParameers" resultMap="RM.UserInfo" >
+    <![CDATA[
+	select USER_ID,USERNAME,PASSWORD,BIRTH_DATE,SEX,AGE  
+	from user_info
+    ]]>
+	</select>	  	
+    
+	
+	
+    

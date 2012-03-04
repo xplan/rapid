@@ -1,0 +1,9 @@
+	
+	
+	
+	<delete id="UserInfo.delete">
+    <![CDATA[
+	delete from user_info 
+    ]]>
+    </delete>
+    

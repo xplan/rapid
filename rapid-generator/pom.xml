@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
-		<relativePath>../oos-parent-pom.xml</relativePath>
+		<relativePath>oos-parent-pom.xml</relativePath>
 	</parent>
 	<groupId>com.googlecode.rapid-framework</groupId>
 	<artifactId>rapid-generator-parent</artifactId>
@@ -22,9 +23,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://rapid-framework.googlecode.com/svn/trunk/rapid-mvn</connection>
-		<developerConnection>scm:svn:https://rapid-framework.googlecode.com/svn/trunk/rapid-mvn</developerConnection>
-		<url>http://rapid-framework.googlecode.com/svn/trunk/rapid-mvn</url>
+		<connection>scm:git:git://github.com/hhlai1990/rapid.git</connection>
+		<developerConnection>scm:git:git://github.com/hhlai1990/rapid.git</developerConnection>
+		<url>http://github.com/hhlai1990/rapid</url>
 	</scm>
 	<developers>
 		<developer>
@@ -42,20 +43,7 @@
 		<module>rapid-generator-template</module>
 		<module>rapid-generator-cmd-line</module>
 	</modules>
-	<!-- deploy path
-	<distributionManagement>
-		<repository>
-			<id>releases</id>
-			<name>Internal Releases</name>
-			<url>http://dev.game.yy.com/nexus/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>Internal snapshots</name>
-			<url>http://dev.game.yy.com/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-	 -->
+
 	<dependencyManagement>
 		<dependencies>
 			<!-- sub projects BEGIN -->
@@ -139,11 +127,8 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<!-- ������� -->
 	<build>
-		<!-- ���� java.net�� maven�ֿ� jar�� release -->
-		<!-- <extensions> <extension> <groupId>org.jvnet.wagon-svn</groupId> <artifactId>wagon-svn</artifactId> 
-			<version>RELEASE</version> </extension> </extensions> -->
+
 		<plugins>
 			<!-- compiler plugin -->
 			<plugin>
@@ -198,14 +183,8 @@
 					</additionalConfig>
 				</configuration>
 			</plugin>
-			<!-- war��� -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.1.1</version>
-				<!-- <configuration> <warName>${project.artifactId}</warName> </configuration> -->
-			</plugin>
-			<!-- jar��� -->
+
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -247,43 +226,43 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- dependency��� -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>2.1</version>
 			</plugin>
-			<!-- antrun��� -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.6</version>
 			</plugin>
-			<!-- cobertura��� -->
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
 				<version>2.4</version>
 			</plugin>
-			<!-- clean��� -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>2.4.1</version>
 			</plugin>
-			<!-- install��� -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
 				<version>2.3.1</version>
 			</plugin>
-			<!-- deploy��� -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.5</version>
 			</plugin>
-			<!-- site plugin -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>

@@ -1,0 +1,14 @@
+	
+	
+	
+	<select id="UserInfoBlog.testSelectWithManyParameers" resultMap="RM.UserInfo" >
+    <![CDATA[
+	select USER_ID,USERNAME,PASSWORD,BIRTH_DATE,SEX,AGE  
+	from user_info 
+	where username = :username and password =:password and age = :age and sex = :sex and birth_date > :birth_date and birth_date < :birth_date2
+    ]]>
+	</select>	  	
+    
+	
+	
+    

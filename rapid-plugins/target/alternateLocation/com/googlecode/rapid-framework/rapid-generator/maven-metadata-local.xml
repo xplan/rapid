@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.googlecode.rapid-framework</groupId>
+  <artifactId>rapid-generator</artifactId>
+  <version>4.0.6-SNAPSHOT</version>
+  <versioning>
+    <versions>
+      <version>4.0.6-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20120221113325</lastUpdated>
+  </versioning>
+</metadata>

@@ -1,0 +1,9 @@
+	
+	
+	
+    
+	<insert id="UserInfo.insert">
+    <![CDATA[
+	insert into user_info values(:user_id,:username,:password,:birth_date,:sex,:age)
+    ]]>
+	</insert>

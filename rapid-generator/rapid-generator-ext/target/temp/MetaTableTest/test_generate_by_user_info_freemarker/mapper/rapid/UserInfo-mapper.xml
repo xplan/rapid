@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+    
+
+<mapper namespace="UserInfo">
+
+	<sql id="forSetOperationSql">
+		inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = ? 
+	    	and r.role_name = ?
+	    	and b.content like ?
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	</sql>
+		
+
+	
+	<update id="UserInfo.update">
+		<![CDATA[
+        UPDATE USER_INFO SET
+	        USERNAME = #username# ,
+	        PASSWORD = #password# ,
+	        BIRTH_DATE = #birthDate# ,
+	        SEX = #sex# ,
+	        AGE = #age# 
+        WHERE 
+	        USER_ID = #userId# 
+    ]]>
+	</update>
+	
+    
+	
+	
+	<delete id="UserInfo.delete">
+		<![CDATA[
+        DELETE FROM USER_INFO WHERE
+        USER_ID = #userId# 
+    ]]>
+    </delete>
+    
+		
+	<select id="UserInfo.getById" resultMap="RM.UserInfo" >
+    	SELECT USER_ID ,USERNAME ,PASSWORD ,BIRTH_DATE ,SEX ,AGE 
+	    <![CDATA[
+	        FROM USER_INFO 
+	        WHERE 
+		        USER_ID = #userId# 
+	    ]]>
+	</select>	
+
+	    
+	
+	
+    
+	<resultMap id="RM.TestGroupByPagingResult" type="com.company.project.query.TestGroupByPagingResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testGroupByPaging" resultMap="RM.TestGroupByPagingResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	</select>	
+
+	<select id="UserInfo.testGroupByPaging.count" resultType="long" >
+    	select count(*)  from (
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	    	group by r.role_id
+	      ) forGroupByCountTable
+	</select>
+	    
+	
+	
+    
+	<resultMap id="RM.TestSetOperationsResult" type="com.company.project.query.TestSetOperationsResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testSetOperations" resultMap="RM.TestSetOperationsResult" >
+    	select r.role_id,sum(r.user_id) sum_user_id from role r 
+		<include refid="forSetOperationSql"/>
+	    UNION 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    UNION ALL
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    MINUS 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    EXCEPT  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    INTERSECT   
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    /*
+	    INTERSECT ALL  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    EXCEPT ALL  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    */
+	</select>	
+
+	<select id="UserInfo.testSetOperations.count" resultType="long" >
+    	select count(*)  from role r 
+		<include refid="forSetOperationSql"/>
+	    UNION 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    UNION ALL
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    MINUS 
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    EXCEPT  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    INTERSECT   
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    /*
+	    INTERSECT ALL  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    EXCEPT ALL  
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    <include refid="forSetOperationSql"/>
+	    */
+	</select>
+	    
+	
+	
+    
+	<resultMap id="RM.TestOpenCloseResult" type="com.company.project.query.TestOpenCloseResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testOpenClose" resultMap="RM.TestOpenCloseResult" >
+    	<![CDATA[
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	   	    <#if databaseType?is_empty>
+	   	    and r.role_name in (${role_name})
+	   	    </#if>
+	   	    <#if databaseType?is_empty>
+	   	    and r.role_name in (${in_role_name})
+	   	    <#else>
+	   	    and r.role_name not in (${not_in_role_name})
+	   	    </#if>
+	   	    <#if rolename?is_empty>
+	   	    and r.role_name = :rolename
+	   	    <#elseif rolename == '123'>
+	   	    and r.role_name = :rolenameArray
+	   	    <#else>
+	   	    and r.role_name = :rolenameList
+	   	    </#if>
+	   	    
+	   	    <#switch being.size>
+			  <#case "small">
+			     and r.role_id = :roleId
+			     <#break>
+			  <#case "medium">
+			     and r.role_id = :roleId
+			     <#break>
+			  <#default>
+			     and r.role_id = :roleId
+			</#switch>  
+
+	    	group by r.role_id
+	    ]]>
+	</select>	
+
+	<select id="UserInfo.testOpenClose.count" resultType="long" >
+    	select count(*)  from (
+    	<![CDATA[
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+	   	    <#if databaseType?is_empty>
+	   	    and r.role_name in (${role_name})
+	   	    </#if>
+	   	    <#if databaseType?is_empty>
+	   	    and r.role_name in (${in_role_name})
+	   	    <#else>
+	   	    and r.role_name not in (${not_in_role_name})
+	   	    </#if>
+	   	    <#if rolename?is_empty>
+	   	    and r.role_name = :rolename
+	   	    <#elseif rolename == '123'>
+	   	    and r.role_name = :rolenameArray
+	   	    <#else>
+	   	    and r.role_name = :rolenameList
+	   	    </#if>
+	   	    
+	   	    <#switch being.size>
+			  <#case "small">
+			     and r.role_id = :roleId
+			     <#break>
+			  <#case "medium">
+			     and r.role_id = :roleId
+			     <#break>
+			  <#default>
+			     and r.role_id = :roleId
+			</#switch>  
+
+	    	group by r.role_id
+	    ]]>
+	      ) forGroupByCountTable
+	</select>
+	    
+	
+	
+    
+	<resultMap id="RM.TestOpenCloseWithListResult" type="com.company.project.query.TestOpenCloseWithListResult">
+		<result property="roleId" column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result property="sumUserId" column="SUM_USER_ID" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+	</resultMap>
+		
+	<select id="UserInfo.testOpenClose_with_list" resultMap="RM.TestOpenCloseWithListResult" >
+    	<![CDATA[
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+
+
+			<#if databaseType?is_empty>
+			and r.role_name in (
+			<#list rolenameSet as r>
+				${r} 
+			</#list>
+			)
+			</#if>
+	    	group by r.role_id
+	    ]]>
+	</select>	
+
+	<select id="UserInfo.testOpenClose_with_list.count" resultType="long" >
+    	select count(*)  from (
+    	<![CDATA[
+	    select r.role_id,sum(r.user_id) sum_user_id from role r 
+	    	inner join role_permission rp on r.role_id = rp.role_id
+	    	left join blog b on b.user_id = r.user_id
+	    where 
+	    	r.role_id = #roleId# 
+	    	and r.role_name = #roleName#
+	    	and b.content like #content#
+	    	and r.modified between #modifiedBegin# and #modifiedEnd#
+
+
+			<#if databaseType?is_empty>
+			and r.role_name in (
+			<#list rolenameSet as r>
+				${r} 
+			</#list>
+			)
+			</#if>
+	    	group by r.role_id
+	    ]]>
+	      ) forGroupByCountTable
+	</select>
+	    
+	
+	
+    
+
+</mapper>
+

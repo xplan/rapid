@@ -1,0 +1,68 @@
+/**
+ * 
+ */
+package cn.org.rapid_framework.plugins.gen;
+
+import java.io.IOException;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+import cn.org.rapid_framework.generator.GeneratorFacade;
+
+/**
+ * 代码生成器插件的主要goal
+ * 
+ * @author hunhun
+ * @goal gen
+ */
+public class GenFilesByTableMojo extends AbstarctGeneratorMojo {
+
+	/**
+	 * -Dtable=* -Dtable=user_info
+	 * 
+	 * @parameter expression="${table}"
+	 * 
+	 */
+	public String tableParameter;
+
+	private GeneratorFacade g;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.maven.plugin.Mojo#execute()
+	 */
+	public void execute() throws MojoExecutionException, MojoFailureException {
+
+		Thread currentThread = Thread.currentThread();
+		ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+
+		try {
+			currentThread.setContextClassLoader(getClassLoader());
+			System.out.println("current project to build: "
+					+ getProject().getName() + "\n"
+					+ getProject().getFile().getParent());
+			g = new GeneratorFacade();
+			g.getGenerator().setTemplateRootDirs("classpath:template");
+			try {
+				g.deleteOutRootDir();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			genByTable(parseStringArray(tableParameter));
+		} finally {
+			currentThread.setContextClassLoader(oldClassLoader);
+		}
+
+	}
+
+	public void genByTable(String... table) {
+		try {
+			g.generateByTable(table);
+			MojoUtil.openFileIfOnWindows();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
