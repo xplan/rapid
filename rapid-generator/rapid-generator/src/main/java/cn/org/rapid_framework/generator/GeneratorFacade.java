@@ -369,7 +369,7 @@ public class GeneratorFacade {
             GLogger.println("\n----All TableNames BEGIN----");
             for (int i = 0; i < tables.size(); i++) {
                 String sqlName = ((Table) tables.get(i)).getSqlName();
-                GLogger.println(" sqlName ");
+                GLogger.println(sqlName);
             }
             GLogger.println("----All TableNames END----");
         }
