@@ -1,0 +1,5 @@
+cn.org.rapid_framework.generator.ext.ant
+cn.org.rapid_framework.generator.ext.tableconfig
+cn.org.rapid_framework.generator.ext.tableconfig.builder
+cn.org.rapid_framework.generator.ext.tableconfig.model
+cn.org.rapid_framework.util
