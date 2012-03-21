@@ -24,12 +24,6 @@
 		</license>
 	</licenses>
 
-	<scm>
-		<connection>scm:git:git://github.com/hhlai1990/rapid.git</connection>
-		<developerConnection>scm:git:git://github.com/hhlai1990/rapid.git</developerConnection>
-		<url>http://github.com/hhlai1990/rapid</url>
-	</scm>
-
 	<developers>
 		<developer>
 			<id>1</id>
