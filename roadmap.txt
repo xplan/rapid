@@ -1,0 +1,12 @@
+4.0.6
+增加maven plugin单元测试;
+生成器配置文件初始化，生成目录相关init check;
+h2 db 代码生成及模板变量 show,freemarker；
+完善wiki；
+
+
+其他
+arhcetype
+* webx-ibatis-arhcetype （多模块） 自包含，降级spring2.5，引入js 框架以及复用组件
+  springmvc-ibatis-arhcetype 升级至spring3.1.1，简化依赖，自包含，抽取springside功能，学习引入js 框架；
+  simple-archetype，单独的spring骨架project，结合rapid-plugins扩展，选择性添加mvc,dao层框架，升至替换页面实现（jquery,ext）。flex暂时不管了。
